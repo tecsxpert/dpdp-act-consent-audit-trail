@@ -31,79 +31,210 @@ function Login() {
 
     setLoading(true)
 
-    // try real backend first, fall back to mock if not available
     api.post("/auth/login", formData)
       .then((res) => {
         login(res.data.token, res.data.username)
         navigate("/")
       })
       .catch(() => {
-        // temporary bypass until backend is ready
-        login("mock-token-123", formData.username)
-        navigate("/")
+        setError("Invalid username or password. Please try again.")
+        setLoading(false)
       })
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="bg-white rounded-lg shadow p-8 w-full max-w-md">
+    <div style={{
+      minHeight: "100vh",
+      background: "linear-gradient(135deg, #1B4F8A 0%, #0d2d52 50%, #061828 100%)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "20px",
+      fontFamily: "Arial, sans-serif"
+    }}>
+      <div style={{
+        width: "100%",
+        maxWidth: "420px"
+      }}>
 
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-blue-800">
+        {/* Logo and Title */}
+        <div style={{ textAlign: "center", marginBottom: "32px" }}>
+          <div style={{
+            width: "64px",
+            height: "64px",
+            background: "rgba(255,255,255,0.15)",
+            borderRadius: "16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "0 auto 16px",
+            fontSize: "28px"
+          }}>
+            🔐
+          </div>
+          <h1 style={{
+            color: "white",
+            fontSize: "28px",
+            fontWeight: "700",
+            margin: "0 0 8px",
+            letterSpacing: "-0.5px"
+          }}>
             DPDP Act
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Consent Audit Trail — Sign in to continue
+          <p style={{
+            color: "rgba(255,255,255,0.6)",
+            fontSize: "14px",
+            margin: 0
+          }}>
+            Consent Audit Trail — Compliance Portal
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Card */}
+        <div style={{
+          background: "white",
+          borderRadius: "16px",
+          padding: "36px",
+          boxShadow: "0 25px 50px rgba(0,0,0,0.3)"
+        }}>
+          <h2 style={{
+            fontSize: "18px",
+            fontWeight: "600",
+            color: "#1a1a2e",
+            margin: "0 0 24px"
+          }}>
+            Sign in to continue
+          </h2>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Username
-            </label>
-            <input
-              type="text"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your username"
-            />
+          <form onSubmit={handleSubmit}>
+
+            <div style={{ marginBottom: "16px" }}>
+              <label style={{
+                display: "block",
+                fontSize: "13px",
+                fontWeight: "600",
+                color: "#4a5568",
+                marginBottom: "6px"
+              }}>
+                Username
+              </label>
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                placeholder="Enter your username"
+                style={{
+                  width: "100%",
+                  padding: "12px 14px",
+                  border: "1.5px solid #e2e8f0",
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                  outline: "none",
+                  boxSizing: "border-box",
+                  transition: "border-color 0.2s",
+                  fontFamily: "Arial, sans-serif"
+                }}
+                onFocus={e => e.target.style.borderColor = "#1B4F8A"}
+                onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+              />
+            </div>
+
+            <div style={{ marginBottom: "20px" }}>
+              <label style={{
+                display: "block",
+                fontSize: "13px",
+                fontWeight: "600",
+                color: "#4a5568",
+                marginBottom: "6px"
+              }}>
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+                style={{
+                  width: "100%",
+                  padding: "12px 14px",
+                  border: "1.5px solid #e2e8f0",
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                  outline: "none",
+                  boxSizing: "border-box",
+                  transition: "border-color 0.2s",
+                  fontFamily: "Arial, sans-serif"
+                }}
+                onFocus={e => e.target.style.borderColor = "#1B4F8A"}
+                onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+              />
+            </div>
+
+            {error && (
+              <div style={{
+                background: "#fff5f5",
+                border: "1px solid #fed7d7",
+                borderRadius: "8px",
+                padding: "10px 14px",
+                marginBottom: "16px",
+                color: "#c53030",
+                fontSize: "13px"
+              }}>
+                ⚠️ {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: "100%",
+                padding: "13px",
+                background: loading ? "#a0aec0" : "#1B4F8A",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "15px",
+                fontWeight: "600",
+                cursor: loading ? "not-allowed" : "pointer",
+                fontFamily: "Arial, sans-serif",
+                transition: "background 0.2s"
+              }}
+              onMouseOver={e => { if (!loading) e.target.style.background = "#163f6e" }}
+              onMouseOut={e => { if (!loading) e.target.style.background = "#1B4F8A" }}
+            >
+              {loading ? "Signing in..." : "Sign In"}
+            </button>
+
+          </form>
+
+          {/* Credentials hint */}
+          <div style={{
+            marginTop: "20px",
+            padding: "12px",
+            background: "#f7fafc",
+            borderRadius: "8px",
+            fontSize: "12px",
+            color: "#718096",
+            textAlign: "center"
+          }}>
+            Demo: <strong>admin</strong> / <strong>admin123</strong>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your password"
-            />
-          </div>
+        </div>
 
-          {error && (
-            <p className="text-red-500 text-sm">{error}</p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-700 text-white py-2 rounded text-sm font-medium hover:bg-blue-800 disabled:opacity-50"
-          >
-            {loading ? "Signing in..." : "Sign In"}
-          </button>
-
-        </form>
-
-        <p className="text-xs text-gray-400 mt-6 text-center">
-          DPDP Act 2023 — Consent Management System
+        {/* Footer */}
+        <p style={{
+          textAlign: "center",
+          color: "rgba(255,255,255,0.4)",
+          fontSize: "12px",
+          marginTop: "24px"
+        }}>
+          Digital Personal Data Protection Act 2023
         </p>
+
       </div>
     </div>
   )

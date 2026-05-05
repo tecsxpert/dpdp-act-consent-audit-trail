@@ -1,49 +1,52 @@
 package com.internship.tool.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "audit_log", indexes = {
-    @Index(name = "idx_audit_entity",    columnList = "entity_name,entity_id"),
-    @Index(name = "idx_audit_performed", columnList = "performed_by"),
-    @Index(name = "idx_audit_action",    columnList = "action")
-})
-@EntityListeners(AuditingEntityListener.class)
-@Getter
-@Setter
+@Table(name = "audit_log")
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class AuditLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "entity_name", nullable = false, length = 100)
-    private String entityName;
+    // which consent record was changed
+    @Column(name = "consent_record_id", nullable = false)
+    private Long consentRecordId;
 
-    @Column(name = "entity_id", nullable = false)
-    private Long entityId;
-
-    @Column(name = "action", nullable = false, length = 50)
+    // what action was performed
+    @Column(name = "action", nullable = false, length = 20)
     private String action;
 
-    @Column(name = "changed_fields", columnDefinition = "TEXT")
-    private String changedFields;
-
-    @Column(name = "performed_by", length = 200)
+    // who did it
+    @Column(name = "performed_by", nullable = false, length = 100)
     private String performedBy;
 
-    @CreatedDate
-    @Column(name = "performed_at", nullable = false, updatable = false)
+    @Column(name = "performed_at", nullable = false)
     private LocalDateTime performedAt;
 
-    @Column(name = "ip_address", length = 50)
-    private String ipAddress;
+    // what changed
+    @Column(name = "old_value", columnDefinition = "TEXT")
+    private String oldValue;
+
+    @Column(name = "new_value", columnDefinition = "TEXT")
+    private String newValue;
+
+    @Column(name = "remarks", length = 500)
+    private String remarks;
+
+    @PrePersist
+    public void prePersist() {
+        this.performedAt = LocalDateTime.now();
+    }
 }

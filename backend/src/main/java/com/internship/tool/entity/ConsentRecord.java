@@ -1,97 +1,83 @@
 package com.internship.tool.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "consent_records", indexes = {
-    @Index(name = "idx_consent_subject_email", columnList = "subject_email"),
-    @Index(name = "idx_consent_status",        columnList = "status"),
-    @Index(name = "idx_consent_purpose",       columnList = "purpose"),
-    @Index(name = "idx_consent_deleted",       columnList = "deleted")
-})
-@Getter
-@Setter
+@Table(name = "consent_record")
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class ConsentRecord extends BaseEntity {
+@EntityListeners(AuditingEntityListener.class)
+public class ConsentRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // ── Subject ──────────────────────────────────────────────
-    @NotBlank
-    @Column(name = "subject_name", nullable = false, length = 150)
-    private String subjectName;
+    // citizen giving consent
+    @Column(name = "data_principal_id", nullable = false, length = 100)
+    private String dataPrincipalId;
 
-    @Email
-    @NotBlank
-    @Column(name = "subject_email", nullable = false, length = 200)
-    private String subjectEmail;
+    @Column(name = "data_principal_name", nullable = false, length = 255)
+    private String dataPrincipalName;
 
-    // ── Consent details ──────────────────────────────────────
-    @NotBlank
-    @Column(name = "purpose", nullable = false, length = 300)
+    @Column(name = "data_principal_email", nullable = false, length = 255)
+    private String dataPrincipalEmail;
+
+    // organization collecting data
+    @Column(name = "data_fiduciary_id", nullable = false, length = 100)
+    private String dataFiduciaryId;
+
+    @Column(name = "data_fiduciary_name", nullable = false, length = 255)
+    private String dataFiduciaryName;
+
+    // what and why
+    @Column(name = "purpose", nullable = false, length = 500)
     private String purpose;
 
-    @Column(name = "data_categories", length = 500)
+    @Column(name = "data_categories", nullable = false, length = 500)
     private String dataCategories;
 
-    @Column(name = "legal_basis", length = 100)
-    private String legalBasis;
+    // status — PENDING by default
+    @Column(name = "consent_status", nullable = false, length = 20)
+    private String consentStatus = "PENDING";
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 30)
-    private ConsentStatus status;
-
-    // ── Dates ────────────────────────────────────────────────
-    @Column(name = "consent_date")
-    private LocalDate consentDate;
-
-    @Column(name = "expiry_date")
-    private LocalDate expiryDate;
-
-    @Column(name = "withdrawal_date")
-    private LocalDate withdrawalDate;
-
-    @Column(name = "deleted_at")
-    private LocalDate deletedAt;
-
-    // ── AI fields ────────────────────────────────────────────
+    // AI fields — filled after AI service responds
     @Column(name = "ai_description", columnDefinition = "TEXT")
     private String aiDescription;
 
-    @Column(name = "ai_recommendations", columnDefinition = "TEXT")
-    private String aiRecommendations;
+    @Column(name = "ai_score")
+    private Integer aiScore;
 
-    @Column(name = "ai_report", columnDefinition = "TEXT")
-    private String aiReport;
+    @Column(name = "is_fallback")
+    private Boolean isFallback = false;
 
-    @Column(name = "ai_processed", nullable = false)
-    @Builder.Default
-    private Boolean aiProcessed = false;
+    // validity dates
+    @Column(name = "consent_date")
+    private LocalDateTime consentDate;
 
-    // ── Soft delete ──────────────────────────────────────────
-    @Column(name = "deleted", nullable = false)
-    @Builder.Default
-    private Boolean deleted = false;
+    @Column(name = "expiry_date")
+    private LocalDateTime expiryDate;
 
-    // ── Extra ────────────────────────────────────────────────
-    @Column(name = "notes", columnDefinition = "TEXT")
-    private String notes;
+    // soft delete
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
 
-    @Column(name = "collected_by", length = 150)
-    private String collectedBy;
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    @Version
-    @Column(name = "version")
-    private Long version;
+    @LastModifiedDate
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 }

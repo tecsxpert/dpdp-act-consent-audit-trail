@@ -6,7 +6,6 @@ function ConsentForm() {
   const navigate = useNavigate()
   const { id } = useParams()
 
-  // if id exists in URL, we are editing. if not, we are creating
   const isEditing = Boolean(id)
 
   const [formData, setFormData] = useState({
@@ -26,7 +25,6 @@ function ConsentForm() {
   const [submitting, setSubmitting] = useState(false)
   const [loadingRecord, setLoadingRecord] = useState(false)
 
-  // if editing, fetch the existing record and fill the form
   useEffect(() => {
     if (isEditing) {
       setLoadingRecord(true)
@@ -54,17 +52,14 @@ function ConsentForm() {
     }
   }, [id, isEditing])
 
-  // update formData when user types in any field
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
-    // clear the error for this field as user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }))
     }
   }
 
-  // validate all fields before submitting
   const validate = () => {
     const newErrors = {}
 
@@ -114,9 +109,16 @@ function ConsentForm() {
 
     setSubmitting(true)
 
+    // convert date strings to LocalDateTime format for backend
+    const payload = {
+      ...formData,
+      consentDate: formData.consentDate ? formData.consentDate + "T00:00:00" : null,
+      expiryDate: formData.expiryDate ? formData.expiryDate + "T00:00:00" : null,
+    }
+
     const request = isEditing
-      ? api.put(`/consent-records/${id}`, formData)
-      : api.post("/consent-records", formData)
+      ? api.put(`/consent-records/${id}`, payload)
+      : api.post("/consent-records", payload)
 
     request
       .then(() => {
@@ -128,221 +130,304 @@ function ConsentForm() {
       })
   }
 
+  const pageStyle = {
+    padding: "24px",
+    fontFamily: "Arial, sans-serif",
+    maxWidth: "1100px",
+    margin: "0 auto"
+  }
+
+  const headerStyle = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "24px"
+  }
+
+  const cardStyle = {
+    background: "white",
+    borderRadius: "12px",
+    padding: "24px",
+    boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+    border: "1px solid #f0f0f0"
+  }
+
+  const sectionTitleStyle = {
+    fontSize: "12px",
+    fontWeight: "700",
+    color: "#6b7280",
+    textTransform: "uppercase",
+    letterSpacing: "0.6px",
+    marginBottom: "12px"
+  }
+
+  const labelStyle = {
+    display: "block",
+    fontSize: "12px",
+    fontWeight: "600",
+    color: "#4a5568",
+    marginBottom: "6px"
+  }
+
+  const inputStyle = {
+    width: "100%",
+    padding: "10px 12px",
+    border: "1.5px solid #e5e7eb",
+    borderRadius: "8px",
+    fontSize: "13px",
+    outline: "none",
+    boxSizing: "border-box",
+    fontFamily: "Arial, sans-serif",
+    background: "white"
+  }
+
+  const errorStyle = {
+    color: "#dc2626",
+    fontSize: "12px",
+    marginTop: "6px"
+  }
+
+  const primaryButtonStyle = {
+    background: submitting ? "#94a3b8" : "#1B4F8A",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    padding: "10px 16px",
+    fontSize: "13px",
+    fontWeight: "600",
+    cursor: submitting ? "not-allowed" : "pointer",
+    fontFamily: "Arial, sans-serif"
+  }
+
+  const secondaryButtonStyle = {
+    background: "white",
+    color: "#1B4F8A",
+    border: "1px solid #cbd5f5",
+    borderRadius: "8px",
+    padding: "10px 16px",
+    fontSize: "13px",
+    fontWeight: "600",
+    cursor: "pointer",
+    fontFamily: "Arial, sans-serif"
+  }
+
   if (loadingRecord) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <p className="text-gray-500">Loading record...</p>
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "260px",
+        fontFamily: "Arial, sans-serif",
+        color: "#6b7280"
+      }}>
+        Loading record...
       </div>
     )
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">
-        {isEditing ? "Edit Consent Record" : "Create Consent Record"}
-      </h1>
-
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-4">
-
-        {/* Data Principal section */}
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-          Data Principal (Citizen)
-        </h2>
-
+    <div style={pageStyle}>
+      <div style={headerStyle}>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Principal ID *
-          </label>
-          <input
-            type="text"
-            name="dataPrincipalId"
-            value={formData.dataPrincipalId}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g. CUST-001"
-          />
-          {errors.dataPrincipalId && (
-            <p className="text-red-500 text-xs mt-1">{errors.dataPrincipalId}</p>
-          )}
+          <h1 style={{
+            fontSize: "24px",
+            fontWeight: "700",
+            color: "#1a1a2e",
+            margin: "0 0 4px"
+          }}>
+            {isEditing ? "Edit Consent Record" : "Create Consent Record"}
+          </h1>
+          <p style={{ color: "#6b7280", fontSize: "14px", margin: 0 }}>
+            Capture consent details for DPDP Act compliance
+          </p>
         </div>
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          style={secondaryButtonStyle}
+        >
+          Back to List
+        </button>
+      </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Principal Name *
-          </label>
-          <input
-            type="text"
-            name="dataPrincipalName"
-            value={formData.dataPrincipalName}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g. Rahul Sharma"
-          />
-          {errors.dataPrincipalName && (
-            <p className="text-red-500 text-xs mt-1">{errors.dataPrincipalName}</p>
-          )}
-        </div>
+      <form onSubmit={handleSubmit} style={{ display: "grid", gap: "16px" }}>
+        <div style={cardStyle}>
+          <div style={sectionTitleStyle}>Data Principal (Citizen)</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
+            <div>
+              <label style={labelStyle}>Principal ID *</label>
+              <input
+                type="text"
+                name="dataPrincipalId"
+                value={formData.dataPrincipalId}
+                onChange={handleChange}
+                style={inputStyle}
+                placeholder="e.g. CUST-001"
+              />
+              {errors.dataPrincipalId && (
+                <div style={errorStyle}>{errors.dataPrincipalId}</div>
+              )}
+            </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Principal Email *
-          </label>
-          <input
-            type="text"
-            name="dataPrincipalEmail"
-            value={formData.dataPrincipalEmail}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g. rahul@example.com"
-          />
-          {errors.dataPrincipalEmail && (
-            <p className="text-red-500 text-xs mt-1">{errors.dataPrincipalEmail}</p>
-          )}
-        </div>
+            <div>
+              <label style={labelStyle}>Principal Name *</label>
+              <input
+                type="text"
+                name="dataPrincipalName"
+                value={formData.dataPrincipalName}
+                onChange={handleChange}
+                style={inputStyle}
+                placeholder="e.g. Rahul Sharma"
+              />
+              {errors.dataPrincipalName && (
+                <div style={errorStyle}>{errors.dataPrincipalName}</div>
+              )}
+            </div>
 
-        {/* Data Fiduciary section */}
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mt-4">
-          Data Fiduciary (Organisation)
-        </h2>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Fiduciary ID *
-          </label>
-          <input
-            type="text"
-            name="dataFiduciaryId"
-            value={formData.dataFiduciaryId}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g. ORG-101"
-          />
-          {errors.dataFiduciaryId && (
-            <p className="text-red-500 text-xs mt-1">{errors.dataFiduciaryId}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Fiduciary Name *
-          </label>
-          <input
-            type="text"
-            name="dataFiduciaryName"
-            value={formData.dataFiduciaryName}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g. HDFC Bank"
-          />
-          {errors.dataFiduciaryName && (
-            <p className="text-red-500 text-xs mt-1">{errors.dataFiduciaryName}</p>
-          )}
-        </div>
-
-        {/* Consent Details */}
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mt-4">
-          Consent Details
-        </h2>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Purpose *
-          </label>
-          <textarea
-            name="purpose"
-            value={formData.purpose}
-            onChange={handleChange}
-            rows={3}
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g. Credit score assessment and loan processing"
-          />
-          {errors.purpose && (
-            <p className="text-red-500 text-xs mt-1">{errors.purpose}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Data Categories *
-          </label>
-          <input
-            type="text"
-            name="dataCategories"
-            value={formData.dataCategories}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g. Financial data, Identity documents"
-          />
-          {errors.dataCategories && (
-            <p className="text-red-500 text-xs mt-1">{errors.dataCategories}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Consent Status
-          </label>
-          <select
-            name="consentStatus"
-            value={formData.consentStatus}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="PENDING">PENDING</option>
-            <option value="GRANTED">GRANTED</option>
-            <option value="REVOKED">REVOKED</option>
-            <option value="EXPIRED">EXPIRED</option>
-          </select>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Consent Date
-            </label>
-            <input
-              type="date"
-              name="consentDate"
-              value={formData.consentDate}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Expiry Date
-            </label>
-            <input
-              type="date"
-              name="expiryDate"
-              value={formData.expiryDate}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.expiryDate && (
-              <p className="text-red-500 text-xs mt-1">{errors.expiryDate}</p>
-            )}
+            <div style={{ gridColumn: "span 2" }}>
+              <label style={labelStyle}>Principal Email *</label>
+              <input
+                type="text"
+                name="dataPrincipalEmail"
+                value={formData.dataPrincipalEmail}
+                onChange={handleChange}
+                style={inputStyle}
+                placeholder="e.g. rahul@example.com"
+              />
+              {errors.dataPrincipalEmail && (
+                <div style={errorStyle}>{errors.dataPrincipalEmail}</div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Buttons */}
-        <div className="flex gap-3 pt-4">
-          <button
-            type="submit"
-            disabled={submitting}
-            className="bg-blue-700 text-white px-6 py-2 rounded text-sm font-medium hover:bg-blue-800 disabled:opacity-50"
-          >
-            {submitting ? "Saving..." : isEditing ? "Update Record" : "Create Record"}
-          </button>
+        <div style={cardStyle}>
+          <div style={sectionTitleStyle}>Data Fiduciary (Organisation)</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
+            <div>
+              <label style={labelStyle}>Fiduciary ID *</label>
+              <input
+                type="text"
+                name="dataFiduciaryId"
+                value={formData.dataFiduciaryId}
+                onChange={handleChange}
+                style={inputStyle}
+                placeholder="e.g. ORG-101"
+              />
+              {errors.dataFiduciaryId && (
+                <div style={errorStyle}>{errors.dataFiduciaryId}</div>
+              )}
+            </div>
+
+            <div>
+              <label style={labelStyle}>Fiduciary Name *</label>
+              <input
+                type="text"
+                name="dataFiduciaryName"
+                value={formData.dataFiduciaryName}
+                onChange={handleChange}
+                style={inputStyle}
+                placeholder="e.g. HDFC Bank"
+              />
+              {errors.dataFiduciaryName && (
+                <div style={errorStyle}>{errors.dataFiduciaryName}</div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div style={cardStyle}>
+          <div style={sectionTitleStyle}>Consent Details</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
+            <div style={{ gridColumn: "span 2" }}>
+              <label style={labelStyle}>Purpose *</label>
+              <textarea
+                name="purpose"
+                value={formData.purpose}
+                onChange={handleChange}
+                rows={3}
+                style={{ ...inputStyle, resize: "vertical" }}
+                placeholder="e.g. Credit score assessment and loan processing"
+              />
+              {errors.purpose && (
+                <div style={errorStyle}>{errors.purpose}</div>
+              )}
+            </div>
+
+            <div style={{ gridColumn: "span 2" }}>
+              <label style={labelStyle}>Data Categories *</label>
+              <textarea
+                name="dataCategories"
+                value={formData.dataCategories}
+                onChange={handleChange}
+                rows={2}
+                style={{ ...inputStyle, resize: "vertical" }}
+                placeholder="e.g. Financial data, Identity documents"
+              />
+              {errors.dataCategories && (
+                <div style={errorStyle}>{errors.dataCategories}</div>
+              )}
+            </div>
+
+            <div>
+              <label style={labelStyle}>Consent Status</label>
+              <select
+                name="consentStatus"
+                value={formData.consentStatus}
+                onChange={handleChange}
+                style={inputStyle}
+              >
+                <option value="PENDING">PENDING</option>
+                <option value="GRANTED">GRANTED</option>
+                <option value="REVOKED">REVOKED</option>
+                <option value="EXPIRED">EXPIRED</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={labelStyle}>Consent Date</label>
+              <input
+                type="date"
+                name="consentDate"
+                value={formData.consentDate}
+                onChange={handleChange}
+                style={inputStyle}
+              />
+            </div>
+
+            <div>
+              <label style={labelStyle}>Expiry Date</label>
+              <input
+                type="date"
+                name="expiryDate"
+                value={formData.expiryDate}
+                onChange={handleChange}
+                style={inputStyle}
+              />
+              {errors.expiryDate && (
+                <div style={errorStyle}>{errors.expiryDate}</div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px" }}>
           <button
             type="button"
             onClick={() => navigate("/")}
-            className="border px-6 py-2 rounded text-sm font-medium text-gray-600 hover:bg-gray-50"
+            style={secondaryButtonStyle}
           >
             Cancel
           </button>
+          <button
+            type="submit"
+            disabled={submitting}
+            style={primaryButtonStyle}
+          >
+            {submitting ? "Saving..." : isEditing ? "Update" : "Create"}
+          </button>
         </div>
-
       </form>
     </div>
   )
