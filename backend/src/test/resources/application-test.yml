@@ -1,0 +1,35 @@
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: false
+
+jwt:
+  secret: dGVzdFNlY3JldEtleUZvckludGVncmF0aW9uVGVzdHMyMDI2
+  expiration-ms: 86400000
+  refresh-expiration-ms: 604800000
+
+ai-service:
+  base-url: http://localhost:9999
+  timeout-seconds: 1
+
+app:
+  admin-email: admin@test.com
+
+logging:
+  level:
+    com.internship.tool: WARN
+    org.springframework.security: WARN
+    org.flywaydb: WARN

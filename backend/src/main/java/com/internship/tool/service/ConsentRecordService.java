@@ -7,6 +7,7 @@ import com.internship.tool.service.dto.StatsResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+
 public interface ConsentRecordService {
 
     Page<ConsentRecordResponse> getAll(Pageable pageable);
@@ -17,8 +18,9 @@ public interface ConsentRecordService {
     void                        delete(Long id);
     Page<ConsentRecordResponse> search(String query,
                                        Pageable pageable);
-    Page<ConsentRecordResponse> filterByStatus(ConsentStatus status,
-                                                Pageable pageable);
+    Page<ConsentRecordResponse> filterByStatus(
+                                    ConsentStatus status,
+                                    Pageable pageable);
     StatsResponse               getStats();
     void                        evictAllCaches();
 }

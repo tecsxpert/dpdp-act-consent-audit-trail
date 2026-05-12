@@ -1,37 +1,31 @@
--- V2__audit_log.sql
--- Audit log table to track every change made to consent records
--- Author: Jayanth C (Java Developer 2)
+-- ============================================================
+-- V2 — Audit log table
+-- Tracks every CREATE / UPDATE / DELETE
+-- Column names match AuditLog entity exactly
+-- ============================================================
 
 CREATE TABLE audit_log (
-    id BIGSERIAL PRIMARY KEY,
-
-    -- which consent record was changed
-    consent_record_id BIGINT NOT NULL,
-
-    -- what action was performed
-    action VARCHAR(20) NOT NULL,
-    -- values: CREATE, UPDATE, DELETE, STATUS_CHANGE
-
-    -- who did it
-    performed_by VARCHAR(100) NOT NULL,
-    performed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    -- what changed (store old and new values as text)
-    old_value TEXT,
-    new_value TEXT,
-
-    -- extra notes if needed
-    remarks VARCHAR(500),
-
-    CONSTRAINT fk_consent_record
-        FOREIGN KEY (consent_record_id)
-        REFERENCES consent_record(id),
-
-    CONSTRAINT chk_action
-        CHECK (action IN ('CREATE', 'UPDATE', 'DELETE', 'STATUS_CHANGE'))
+    id              BIGSERIAL       PRIMARY KEY,
+    entity_name     VARCHAR(100)    NOT NULL,
+    entity_id       BIGINT          NOT NULL,
+    action          VARCHAR(50)     NOT NULL
+                        CHECK (action IN (
+                            'CREATE',
+                            'UPDATE',
+                            'DELETE'
+                        )),
+    changed_fields  TEXT,
+    performed_by    VARCHAR(200),
+    performed_at    TIMESTAMP       NOT NULL DEFAULT NOW(),
+    ip_address      VARCHAR(50)
 );
 
--- we'll query audit logs mostly by consent record
-CREATE INDEX idx_audit_consent_id ON audit_log(consent_record_id);
-CREATE INDEX idx_audit_performed_at ON audit_log(performed_at);
-CREATE INDEX idx_audit_action ON audit_log(action);
+-- indexes matching @Index declarations in AuditLog entity
+CREATE INDEX idx_audit_entity
+    ON audit_log (entity_name, entity_id);
+
+CREATE INDEX idx_audit_performed
+    ON audit_log (performed_by);
+
+CREATE INDEX idx_audit_action
+    ON audit_log (action);

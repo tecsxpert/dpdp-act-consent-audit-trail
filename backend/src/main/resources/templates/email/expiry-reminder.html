@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0; padding: 0;
+    }
+    .container {
+      max-width: 600px; margin: 32px auto;
+      background: #ffffff; border-radius: 8px;
+      border: 1px solid #e0e0e0; overflow: hidden;
+    }
+    .header {
+      background: #1976D2; padding: 24px 32px;
+      color: #ffffff;
+    }
+    .header h1 {
+      margin: 0; font-size: 20px; font-weight: 600;
+    }
+    .body {
+      padding: 32px; color: #333333;
+      font-size: 15px; line-height: 1.7;
+    }
+    .detail-box {
+      background: #F3F6FB;
+      border-left: 4px solid #1976D2;
+      padding: 16px 20px; border-radius: 4px;
+      margin: 20px 0;
+    }
+    .detail-box p {
+      margin: 4px 0; font-size: 14px; color: #555;
+    }
+    .detail-box strong { color: #222; }
+    .footer {
+      background: #f5f5f5; padding: 16px 32px;
+      font-size: 12px; color: #999;
+      text-align: center;
+      border-top: 1px solid #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Consent Expiry Reminder</h1>
+  </div>
+  <div class="body">
+    <p>Dear <strong th:text="${subjectName}">User</strong>,</p>
+    <p>Your consent record is expiring soon.
+       Please review and renew it if needed.</p>
+    <div class="detail-box">
+      <p><strong>Purpose:</strong>
+         <span th:text="${purpose}">—</span></p>
+      <p><strong>Email on record:</strong>
+         <span th:text="${subjectEmail}">—</span></p>
+      <p><strong>Expiry date:</strong>
+         <span th:text="${#temporals.format(
+           expiryDate,'dd MMM yyyy')}">—</span></p>
+      <p><strong>Record ID:</strong>
+         <span th:text="${recordId}">—</span></p>
+    </div>
+    <p>If you have questions, please contact our
+       data protection team.</p>
+    <p>Thank you,<br/>Consent Audit Trail Team</p>
+  </div>
+  <div class="footer">
+    This is an automated message.
+    Please do not reply directly to this email.
+  </div>
+</div>
+</body>
+</html>
